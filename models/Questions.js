@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 const questionSchema = mongoose.Schema({
-	questions: {
-		type: Array,
+	questions: { type: Array, required: true },
+	testDuration: { type: Number, required: true },
+	uploadTime: {
+		type: Date,
 		required: true,
+		default: Date.now,
 	},
-	duration: Number,
-	spearMode: Boolean,
 });
 module.exports = mongoose.model("Questions", questionSchema);
