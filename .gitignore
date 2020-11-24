@@ -1,3 +1,3 @@
-/node_modules
-/.env
-/routes/routes.rest
+node_modules
+./.env
+./routes/routes.rest
