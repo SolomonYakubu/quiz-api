@@ -17,9 +17,12 @@ const profileSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  // quizId: {
-  // 	type: Object,
-  // },
+  profile_id:{
+	type:String, 
+	required:true,
+	
+},
+  
 });
 
 module.exports = mongoose.model("Profile", profileSchema);

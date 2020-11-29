@@ -11,5 +11,16 @@ const quizSchema = mongoose.Schema({
 		required: true,
 		default: Date.now,
 	},
+	profile_id:{
+		type:String, 
+		required:true,
+		
+	},
+	privacy:{
+		type:String,
+		required:true,
+		default:"public"
+
+	}
 });
 module.exports = mongoose.model("Quiz", quizSchema);

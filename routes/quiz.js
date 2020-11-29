@@ -26,6 +26,9 @@ router.post("/", async (req, res) => {
 		quiz: req.body.quiz,
 		subject: req.body.subject,
 		testDuration: req.body.duration,
+		profile_id:req.body.profile_id,
+		privacy:req.body.privacy,
+		
 	});
 	try {
 		const newQuiz = await quiz.save();
