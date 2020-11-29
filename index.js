@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const quizRoutes = require("./routes/quiz");
+const profileRoutes = require("./routes/profile");
 const mongoose = require("mongoose");
 require("dotenv").config();
 mongoose.Promise = global.Promise;
@@ -20,7 +21,7 @@ mongoose
 app.use(cors());
 app.use(express.json());
 app.use("/quiz", quizRoutes);
-
+app.use("/profile",profileRoutes)
 const port = process.env.PORT || 3002;
 
 app.listen(port, () => console.log(`server is running at ${port}`));

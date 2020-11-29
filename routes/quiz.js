@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { mongo } = require("mongoose");
+
 const router = express.Router();
 const Quiz = require("../models/quiz");
 mongoose.Promise = global.Promise;

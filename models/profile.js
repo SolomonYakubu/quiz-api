@@ -9,9 +9,13 @@ const profileSchema = mongoose.Schema({
 		required: true,
 		default: "ninja",
 	},
-	quizId: {
-		type: Object,
-	},
+	email:{
+		type:String,
+		required:true
+	}
+	// quizId: {
+	// 	type: Object,
+	// },
 });
 
 module.exports = mongoose.model("Profile", profileSchema);
