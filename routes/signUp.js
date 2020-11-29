@@ -28,30 +28,5 @@ res.status(401).json({message:"An error occurred"})
 
 })
 
-router.get('/',async(req,res)=>{
-    try{
-        const profile =  await Profile.find()
-        res.json(profile)
-
-    }
-    catch(error){
-        res.status(404).json({message:'No entry found'})
-
-    }
-    
-})
-router.get('/:id',async(req,res)=>{
-
-    try {
-        const profile =  await Profile.findOne({
-            email:req.params.id
-        })
-        const password = profile.password
-        const unHashedPassword = await bcrypt.compare("solomo",password)
-        res.status(201).json(unHashedPassword)
-    } catch (error) {
-        res.status(404).json({message:'Profile not found'})
-    }
-})
 
 module.exports = router

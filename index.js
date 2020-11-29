@@ -2,7 +2,9 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const quizRoutes = require("./routes/quiz");
-const profileRoutes = require("./routes/profile");
+const signUpRoutes = require("./routes/signUp");
+const signInRoutes = require("./routes/signIn")
+const profileRoutes = require("./routes/profile")
 const mongoose = require("mongoose");
 require("dotenv").config();
 mongoose.Promise = global.Promise;
@@ -21,6 +23,8 @@ mongoose
 app.use(cors());
 app.use(express.json());
 app.use("/quiz", quizRoutes);
+app.use("/signUp",signUpRoutes)
+app.use("/signIn",signInRoutes)
 app.use("/profile",profileRoutes)
 const port = process.env.PORT || 3002;
 
