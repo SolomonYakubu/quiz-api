@@ -23,7 +23,7 @@ router.get('/',async(req,res)=>{
 router.get('/quiz',async(req,res)=>{
 
     try{
-        const quiz =  await Quiz.find()
+        const quiz =  await Quiz.find({privacy:'public'})
         res.json(quiz)
 
     }
@@ -36,8 +36,14 @@ router.get('/quiz',async(req,res)=>{
 router.get('/quiz/:id',async(req,res)=>{
 
     try {
+        
         const quiz =  await Quiz.find({profile_id:req.params.id})
+        if(quiz!=''){
         res.json(quiz)
+        }
+        else{
+            res.status(404).json({message:'NOT FOUND'})
+        }
        
     } catch (error) {
         res.status(404).json({message:'quiz not found'})
