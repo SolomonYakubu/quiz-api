@@ -19,6 +19,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", getQuiz, (req, res) => {
   res.json(res.quiz);
 });
+
 //creating quiz
 router.post("/", async (req, res) => {
   // console.log(req.body);
@@ -58,4 +59,26 @@ async function getQuiz(req, res, next) {
   res.quiz = quiz;
   next();
 }
+
+//Update a quiz by id
+router.patch("/:id", async (req, res) => {
+  const updatedQuiz = req.body;
+
+  try {
+    const quiz = await Quiz.updateOne(
+      { _id: req.params.id },
+      { $set: updatedQuiz },
+      (err, result) => {
+        if (err) {
+          res.json({ message: "An error occured" });
+        } else {
+          res.json(result);
+        }
+      }
+    );
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;

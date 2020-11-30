@@ -3,7 +3,9 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const Profile = require("../models/profile");
 const Quiz = require("../models/quiz");
+const profile = require("../models/profile");
 
+//get all profile
 router.get("/", async (req, res) => {
   try {
     const profile = await Profile.find();
@@ -13,6 +15,19 @@ router.get("/", async (req, res) => {
   }
 });
 
+//get a profile by id
+router.get("/:profile_id", async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      profile_id: req.params.profile_id,
+    });
+    res.json(profile);
+  } catch (error) {
+    res.status(404).json({ message: "No entry found" });
+  }
+});
+
+//get all public quiz
 router.get("/quiz", async (req, res) => {
   try {
     const quiz = await Quiz.find({ privacy: "public" });
@@ -21,9 +36,11 @@ router.get("/quiz", async (req, res) => {
     res.status(404).json({ message: "No entry found" });
   }
 });
-router.get("/quiz/:id", async (req, res) => {
+
+//get a quiz by profile_id
+router.get("/quiz/:profile_id", async (req, res) => {
   try {
-    const quiz = await Quiz.find({ profile_id: req.params.id });
+    const quiz = await Quiz.find({ profile_id: req.params.profile_id });
     if (quiz != "") {
       res.json(quiz);
     } else {
@@ -33,31 +50,20 @@ router.get("/quiz/:id", async (req, res) => {
     res.status(404).json({ message: "quiz not found" });
   }
 });
-router.delete("/quiz/:id", async (req, res) => {
-  try {
-    const quiz = await Quiz.findOne({ _id: req.params.id });
-    if (quiz) {
-      quiz.remove(() => res.json({ message: "Deleted successfully" }));
-    } else {
-      res.status(404).json({ message: "quiz not found" });
-    }
-  } catch (error) {
-    res.status(404).json({ message: "quiz not found" });
-  }
-});
 
-router.patch("/quiz/:id", async (req, res) => {
-  const updatedQuiz = req.body;
+//Update a quiz
+router.patch("/quiz/:profile_id", async (req, res) => {
+  const updatedProfile = req.body;
 
   try {
-    const quiz = await Quiz.updateOne(
-      { _id: req.params.id },
-      { $set: updatedQuiz },
+    const profile = await Profile.updateOne(
+      { profile_id: req.params.profile_id },
+      { $set: updatedProfile },
       (err, result) => {
         if (err) {
           res.json({ message: "An error occured" });
         } else {
-          res.json(result);
+          res.json({ message: "Updated successfully", result: result });
         }
       }
     );
@@ -65,4 +71,38 @@ router.patch("/quiz/:id", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
+//Change password
+router.patch("/password-change/:profile_id", async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  try {
+    const profile = await Profile.findOne({
+      profile_id: req.params.profile_id,
+    });
+    const password = profile.password;
+
+    const check = await bcrypt.compare(oldPassword, password);
+    if (check) {
+      const newHashedPassword = await bcrypt.hash(newPassword, 10);
+      profile.updateOne(
+        { $set: { password: newHashedPassword } },
+        (err, result) => {
+          if (err) {
+            res.json({ message: "an error occurred" });
+          } else {
+            res.json({
+              message: "Password updated successfully",
+              result: result,
+            });
+          }
+        }
+      );
+    } else {
+      res.json({ message: "Incorrect password" });
+    }
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+});
+
 module.exports = router;
