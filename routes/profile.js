@@ -3,7 +3,6 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const Profile = require("../models/profile");
 const Quiz = require("../models/quiz");
-const profile = require("../models/profile");
 
 //get all profile
 router.get("/", async (req, res) => {
@@ -28,10 +27,11 @@ router.get("/:profile_id", async (req, res) => {
 });
 
 //get all public quiz
-router.get("/quiz", async (req, res) => {
+router.get("/public/quiz", async (req, res) => {
   try {
     const quiz = await Quiz.find({ privacy: "public" });
     res.json(quiz);
+    console.log(quiz);
   } catch (error) {
     res.status(404).json({ message: "No entry found" });
   }
@@ -51,7 +51,7 @@ router.get("/quiz/:profile_id", async (req, res) => {
   }
 });
 
-//Update a quiz
+//Update profile
 router.patch("/:profile_id", async (req, res) => {
   const updatedProfile = req.body;
 
@@ -102,6 +102,26 @@ router.patch("/password-change/:profile_id", async (req, res) => {
     }
   } catch (error) {
     res.json({ message: error.message });
+  }
+});
+
+router.delete("/:profile_id", async (req, res) => {
+  const { password } = req.body;
+  try {
+    const profile = await Profile.findOne({
+      profile_id: req.params.profile_id,
+    });
+    const hashedPassword = profile.password;
+    const check = await bcrypt.compare(password, hashedPassword);
+    if (check) {
+      profile.remove(() =>
+        res.json({ message: "profile deleted successfully" })
+      );
+    } else {
+      res.json({ message: "invalid password" });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 
