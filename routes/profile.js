@@ -52,7 +52,7 @@ router.get("/quiz/:profile_id", async (req, res) => {
 });
 
 //Update a quiz
-router.patch("/quiz/:profile_id", async (req, res) => {
+router.patch("/:profile_id", async (req, res) => {
   const updatedProfile = req.body;
 
   try {
