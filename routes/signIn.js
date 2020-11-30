@@ -15,14 +15,14 @@ router.post('/',async(req,res)=>{
         const check = await bcrypt.compare(password,hashedPassword)
         if(check){
            
-            res.json({message:'successful'})
+            res.json({message:'successful',profile_id:profile.profile_id})
             
         }
         else{
             res.status(403).json({message:'invalid details'})
         }
     } catch (error) {
-        res.status(404).json({message:"invalid details"})
+        res.status(404).json({message:"Email not registered"})
     }
 })
 
