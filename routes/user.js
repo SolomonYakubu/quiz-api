@@ -1,26 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const Profile = require("../models/profile");
+const User = require("../models/user");
 const Quiz = require("../models/quiz");
-
-//get all profile
-router.get("/", async (req, res) => {
+const checkToken = require("../auth/auth.js");
+const jwt = require("jsonwebtoken");
+//get all user user
+router.get("/", checkToken, async (req, res) => {
   try {
-    const profile = await Profile.find();
-    res.json(profile);
+    const user = await User.find();
+    res.json(res.userData);
   } catch (error) {
     res.status(404).json({ message: "No entry found" });
   }
 });
 
-//get a profile by id
-router.get("/:profile_id", async (req, res) => {
+//get a user by user_id
+router.get("/:user_id", async (req, res) => {
   try {
-    const profile = await Profile.findOne({
-      profile_id: req.params.profile_id,
+    const user = await User.findOne({
+      user_id: req.params.user_id,
     });
-    res.json(profile);
+    res.json(user);
   } catch (error) {
     res.status(404).json({ message: "No entry found" });
   }
@@ -37,10 +38,10 @@ router.get("/public/quiz", async (req, res) => {
   }
 });
 
-//get a quiz by profile_id
-router.get("/quiz/:profile_id", async (req, res) => {
+//get a quiz by user_id
+router.get("/quiz/:user_id", async (req, res) => {
   try {
-    const quiz = await Quiz.find({ profile_id: req.params.profile_id });
+    const quiz = await Quiz.find({ user_id: req.params.user_id });
     if (quiz != "") {
       res.json(quiz);
     } else {
@@ -51,14 +52,14 @@ router.get("/quiz/:profile_id", async (req, res) => {
   }
 });
 
-//Update profile
-router.patch("/:profile_id", async (req, res) => {
-  const updatedProfile = req.body;
+//Update user
+router.patch("/:user_id", async (req, res) => {
+  const updatedUser = req.body;
 
   try {
-    const profile = await Profile.updateOne(
-      { profile_id: req.params.profile_id },
-      { $set: updatedProfile },
+    const user = await User.updateOne(
+      { user_id: req.params.user_id },
+      { $set: updatedUser },
       (err, result) => {
         if (err) {
           res.json({ message: "An error occured" });
@@ -73,18 +74,18 @@ router.patch("/:profile_id", async (req, res) => {
 });
 
 //Change password
-router.patch("/password-change/:profile_id", async (req, res) => {
+router.patch("/password-change/:user_id", async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   try {
-    const profile = await Profile.findOne({
-      profile_id: req.params.profile_id,
+    const user = await User.findOne({
+      user_id: req.params.user_id,
     });
-    const password = profile.password;
+    const password = user.password;
 
     const check = await bcrypt.compare(oldPassword, password);
     if (check) {
       const newHashedPassword = await bcrypt.hash(newPassword, 10);
-      profile.updateOne(
+      user.updateOne(
         { $set: { password: newHashedPassword } },
         (err, result) => {
           if (err) {
@@ -104,19 +105,17 @@ router.patch("/password-change/:profile_id", async (req, res) => {
     res.json({ message: error.message });
   }
 });
-
-router.delete("/:profile_id", async (req, res) => {
+//delete user
+router.delete("/:user_id", async (req, res) => {
   const { password } = req.body;
   try {
-    const profile = await Profile.findOne({
-      profile_id: req.params.profile_id,
+    const user = await User.findOne({
+      user_id: req.params.user_id,
     });
-    const hashedPassword = profile.password;
+    const hashedPassword = user.password;
     const check = await bcrypt.compare(password, hashedPassword);
     if (check) {
-      profile.remove(() =>
-        res.json({ message: "profile deleted successfully" })
-      );
+      user.remove(() => res.json({ message: "user deleted successfully" }));
     } else {
       res.json({ message: "invalid password" });
     }
