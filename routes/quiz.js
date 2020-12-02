@@ -27,7 +27,7 @@ router.post("/", async (req, res) => {
     quiz: req.body.quiz,
     subject: req.body.subject,
     testDuration: req.body.duration,
-    profile_id: req.body.profile_id,
+    user_id: req.body.user_id,
     privacy: req.body.privacy,
   });
   try {
@@ -39,8 +39,16 @@ router.post("/", async (req, res) => {
 });
 //deleting a question
 router.delete("/:id", getQuiz, async (req, res) => {
+  const user = res.quiz.user_id;
+  const { user_id } = req.body;
+
+  if (user !== user_id) {
+    return res
+      .status(403)
+      .json({ message: "You're not authorised to delete this quiz" });
+  }
   try {
-    await res.quiz.remove();
+    await res.quiz.deleteOne();
     res.json({ message: "Deleted quiz successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });

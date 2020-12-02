@@ -53,9 +53,15 @@ router.get("/quiz/:user_id", async (req, res) => {
 });
 
 //Update user
-router.patch("/:user_id", async (req, res) => {
+router.patch("/:user_id", checkToken, async (req, res) => {
   const updatedUser = req.body;
+  const userToken = res.userData;
 
+  if (userToken.profile.user_id !== req.params.user_id) {
+    return res
+      .status(401)
+      .json({ message: "You are not authorized to update user information" });
+  }
   try {
     const user = await User.updateOne(
       { user_id: req.params.user_id },
@@ -115,7 +121,7 @@ router.delete("/:user_id", async (req, res) => {
     const hashedPassword = user.password;
     const check = await bcrypt.compare(password, hashedPassword);
     if (check) {
-      user.remove(() => res.json({ message: "user deleted successfully" }));
+      user.deleteOne(() => res.json({ message: "user deleted successfully" }));
     } else {
       res.json({ message: "invalid password" });
     }

@@ -15,20 +15,30 @@ router.post("/", async (req, res) => {
     });
     const hashedPassword = user.password;
     const check = await bcrypt.compare(password, hashedPassword);
+
     if (check) {
+      const profile = {
+        user_id: user.user_id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        date: user.date,
+      };
       jwt.sign(
-        { user },
+        {
+          profile,
+        },
         process.env.AUTH_SECRET,
         { expiresIn: "15m" },
         (err, token) => {
           if (err) {
-            res.json({ message: err.message });
+            return res.json({ message: err.message });
           }
           res.json({ message: "successful", user_id: user.user_id, token });
         }
       );
     } else {
-      res.status(403).json({ message: "invalid details" });
+      return res.status(401).json({ message: "invalid details" });
     }
   } catch (error) {
     res.status(404).json({ message: "Invalid details" });
