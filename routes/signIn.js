@@ -19,26 +19,22 @@ router.post("/", async (req, res) => {
     if (check) {
       const profile = {
         user_id: user.user_id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        date: user.date,
       };
-      jwt.sign(
-        {
-          profile,
-        },
-        process.env.AUTH_SECRET,
-        { expiresIn: "15m" },
-        (err, token) => {
-          if (err) {
-            return res.json({ message: err.message });
-          }
-          res.json({ message: "successful", user_id: user.user_id, token });
-        }
-      );
+      const token = jwt.sign(profile, process.env.AUTH_SECRET, {
+        expiresIn: "1m",
+      });
+      const refreshToken = jwt.sign(profile, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: "5m",
+      });
+      if (token && refreshToken) {
+        res.status(201).json({
+          user_id: user.user_id,
+          token,
+          refreshToken,
+        });
+      }
     } else {
-      return res.status(401).json({ message: "invalid details" });
+      res.status(401).json({ message: "invalid details" });
     }
   } catch (error) {
     res.status(404).json({ message: "Invalid details" });

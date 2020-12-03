@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { checkToken } = require("../auth/auth");
 
 const router = express.Router();
 const Quiz = require("../models/quiz");

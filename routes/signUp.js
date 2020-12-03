@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { v4: uuidv4 } = require("uuid");
-
+const jwt = require("jsonwebtoken");
 router.post("/", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -20,9 +20,23 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Email already exist" });
     }
     if (!(await User.findOne({ username: req.body.username }))) {
-      const newuser = await user.save(() =>
-        res.status(201).json({ message: "user created successfully" })
-      );
+      const newuser = await user.save(() => {
+        const token = jwt.sign({ user_id }, process.env.AUTH_SECRET, {
+          expiresIn: "1m",
+        });
+        const refreshToken = jwt.sign(
+          { user_id },
+          process.env.REFRESH_TOKEN_SECRET,
+          { expiresIn: "5m" }
+        );
+        if (token && refreshToken) {
+          res.status(201).json({
+            user_id,
+            token,
+            refreshToken,
+          });
+        }
+      });
     } else {
       res.status(400).json({ message: "Username already exist" });
     }

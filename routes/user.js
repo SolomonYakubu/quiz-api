@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const Quiz = require("../models/quiz");
-const checkToken = require("../auth/auth.js");
+const { checkToken, checkRefreshToken } = require("../auth/auth.js");
 const jwt = require("jsonwebtoken");
 //get all user user
 router.get("/", checkToken, async (req, res) => {
@@ -16,12 +16,21 @@ router.get("/", checkToken, async (req, res) => {
 });
 
 //get a user by user_id
-router.get("/:user_id", async (req, res) => {
+router.get("/:user_id", checkToken, async (req, res) => {
   try {
     const user = await User.findOne({
       user_id: req.params.user_id,
     });
-    res.json(user);
+    const { name, date, displayProfile, email, username } = user;
+
+    const profile = {
+      name,
+      date,
+      displayProfile,
+      email,
+      username,
+    };
+    res.json(profile);
   } catch (error) {
     res.status(404).json({ message: "No entry found" });
   }
@@ -51,7 +60,26 @@ router.get("/quiz/:user_id", async (req, res) => {
     res.status(404).json({ message: "quiz not found" });
   }
 });
-
+//refresh-token routes
+router.post("/refresh-token", checkRefreshToken, (req, res) => {
+  const { user_id } = req.body;
+  const userData = res.userData;
+  console.log(user_id, userData);
+  try {
+    if (user_id === userData.user_id) {
+      const token = jwt.sign({ user_id }, process.env.AUTH_SECRET, {
+        expiresIn: "1m",
+      });
+      if (token) {
+        res.json({ user_id, token });
+      }
+    } else {
+      res.sendStatus(403);
+    }
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+});
 //Update user
 router.patch("/:user_id", checkToken, async (req, res) => {
   const updatedUser = req.body;
