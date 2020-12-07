@@ -28,7 +28,6 @@ router.get("/:user_id", checkToken, async (req, res) => {
       date,
       displayProfile,
       email,
-      username,
     };
     res.json(profile);
   } catch (error) {
@@ -41,7 +40,6 @@ router.get("/public/quiz", async (req, res) => {
   try {
     const quiz = await Quiz.find({ privacy: "public" });
     res.json(quiz);
-    console.log(quiz);
   } catch (error) {
     res.status(404).json({ message: "No entry found" });
   }
@@ -68,7 +66,7 @@ router.post("/refresh-token", checkRefreshToken, (req, res) => {
   try {
     if (user_id === userData.user_id) {
       const token = jwt.sign({ user_id }, process.env.AUTH_SECRET, {
-        expiresIn: "1m",
+        expiresIn: "5m",
       });
       if (token) {
         res.json({ user_id, token });

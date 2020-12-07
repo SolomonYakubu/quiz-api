@@ -7,11 +7,11 @@ const User = require("../models/user");
 require("dotenv").config();
 
 router.post("/", async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
     const user = await User.findOne({
-      username: username,
+      email: email,
     });
     const hashedPassword = user.password;
     const check = await bcrypt.compare(password, hashedPassword);
@@ -21,10 +21,10 @@ router.post("/", async (req, res) => {
         user_id: user.user_id,
       };
       const token = jwt.sign(profile, process.env.AUTH_SECRET, {
-        expiresIn: "1m",
+        expiresIn: "5m",
       });
       const refreshToken = jwt.sign(profile, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: "5m",
+        expiresIn: "15d",
       });
       if (token && refreshToken) {
         res.status(201).json({
